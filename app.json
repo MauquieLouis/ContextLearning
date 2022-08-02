@@ -1,0 +1,8 @@
+{
+  "name": "ContextLearning",
+  "displayName": "ContextLearning",
+    "compilerOptions": {
+    "module": "es2022",
+    "moduleResolution": "Node"
+  }
+}
