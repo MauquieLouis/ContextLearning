@@ -1,4 +1,4 @@
-// /src/context/appContext.js
+// /src/context/userContext.js
 import * as React from 'react';
 import { createContext, useContext, useEffect, useRef, useState} from "react";
 import { supabaseClient  } from '../../lib/initSupabase';
@@ -9,6 +9,7 @@ export const UserContext = createContext({
 });
 
 export const UserContextProvider = ({ props, children }) => {
+	
 	const[session, setSession] = useState(null);
 	const[user, setUser] = useState(null);
 	
@@ -35,7 +36,8 @@ export const UserContextProvider = ({ props, children }) => {
 	
 	return (<UserContext.Provider value={value} {...props}>
 				{children}
-			</UserContext.Provider>)
+			</UserContext.Provider>
+			);
 	//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-//
 	// - - - - - - - - - - - - - - E N D - - - - - - - - - - - - - - - - - - //
 	//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-//

@@ -1,0 +1,74 @@
+import React, { useState, useEffect } from 'react';
+import { supabaseClient  } from '../../../lib/initSupabase';
+
+export const MessagingSubscriptionContext = createContex({});
+
+export const MessagingSubscriptionContextProvider = ({props, children}) => {
+	
+	//Normaly we should already have access to session and user, thanks to userContext...
+	const {session, user} = useUserContext();
+	//To Check
+
+	let mySubscription = null;
+	const [error, setError] = useSate("");
+	const [messages, setMessages] = useState([]);
+	const [newIncomingMessageTrigger, setNewIncomingMessageTrigger] = useState(null);
+	const [unviewedMessageCount, setUnviewedMessageCount] = useState(0);
+	
+	useEffect(() => {
+		getMessagesAndSubscribe();
+		
+		
+	},[]);
+	
+	const getInitialMessages = async () => {
+		if(!messages.length){
+			const { data, error } = await supabaseClient.from('message').select().eq('messaging', 20).range(0,30);
+			//End the loading
+			
+			if(error){
+				setError(error.message);
+				supabase.removeSubscription(mySubscription);
+				mySubscription = null;
+				return;
+			}
+			setMessages(data);
+			//Scroll To Bottom
+		}
+	}
+	
+	const getMessagesAndSubscribe = async () => {
+		setError("");
+		if(!mySubscription){
+			getInitialMessages();
+			mySubscription = supabaseClient.from("message:messaging=eq.20").on("*",(payload) => {
+				handleNewMessage(payload);
+			}).subscribre();
+			//mySubscription = supabaseClient.from('message:messaging='+idMessaging).on('INSERT',handleInsertNewMessage).subscribe()
+		}
+	}
+	
+	const value = {
+		error,
+		messages,
+		getMessagesAndSubscribe,
+		unviewedMessageCount,
+	};
+	
+	return (
+		<MessagingSubscriptionContext.Provider value={value} {...props}>
+			{children}
+		</MessagingSubscriptionContext.Provider>
+		);
+	//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-//
+	// - - - - - - - - - - - - - - E N D - - - - - - - - - - - - - - - - - - //
+	//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-//
+}
+
+export const useMessagingSubscription = () => {
+	const context = useContext(MessagingSubscriptionContext);
+	if(context === undefined) {
+		throw new Error('useMessagingSubscription must be used within a MessagingSubscriptionContextProvider');
+	}
+	return context;
+};

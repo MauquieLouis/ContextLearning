@@ -17,6 +17,7 @@ const UserSearchDisplay = (props) => {
 	const [avatarUrl, setAvatarUrl] = useState(null);
 	const [loading, setLoading] = useState(false);
 	
+	
 	useEffect(() => {
 		if (props.profile.avatar_url) downloadImage(props.profile.avatar_url)
 		return() => {setAvatarUrl()}
