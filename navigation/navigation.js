@@ -58,7 +58,8 @@ const MyNavigator = () =>{
 					tabBarInactiveTintColor:iconStyle.notFocusedcolor,
 					tabBarShowLabel:iconStyle.showText,
 					tabBarStyle:styles.tabBarStyle,
-					tabBarHideOnKeyboard:true
+					tabBarHideOnKeyboard:true,
+					headerShown:false		
 				}}>
 					{/*---------------------------------------- M A P   S C R E E N ------------------------------------------------*/}
 					<bottomTab.Screen name="Map" component={MapScreen} options={{
