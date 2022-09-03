@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { supabaseClient  } from '../../../lib/initSupabase';
+import React, { useState, useEffect, createContext,useContext } from 'react';
+import { supabaseClient  } from '../../lib/initSupabase';
 
-export const MessagingSubscriptionContext = createContex({});
+export const MessagingSubscriptionContext = createContext({});
 
 export const MessagingSubscriptionContextProvider = ({props, children}) => {
 	
@@ -42,7 +42,8 @@ export const MessagingSubscriptionContextProvider = ({props, children}) => {
 		if(!mySubscription){
 			getInitialMessages();
 			mySubscription = supabaseClient.from("message:messaging=eq.20").on("*",(payload) => {
-				handleNewMessage(payload);
+				console.log("Change in this messaging !! LOLOLOLOLOL");
+				//handleNewMessage(payload);
 			}).subscribre();
 			//mySubscription = supabaseClient.from('message:messaging='+idMessaging).on('INSERT',handleInsertNewMessage).subscribe()
 		}
@@ -65,7 +66,7 @@ export const MessagingSubscriptionContextProvider = ({props, children}) => {
 	//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-//
 }
 
-export const useMessagingSubscription = () => {
+export const useMessagingSubscriptionContext = () => {
 	const context = useContext(MessagingSubscriptionContext);
 	if(context === undefined) {
 		throw new Error('useMessagingSubscription must be used within a MessagingSubscriptionContextProvider');

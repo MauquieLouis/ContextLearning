@@ -3,11 +3,13 @@
 // Import all react bullshit and navigation
 //-----------------------------
 import * as React from 'react';
+import {Button, Text} from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 //-----------------------------
 // Import all component
 //-----------------------------
 import ProfileScreen from '../src/screens/profile/profileScreen';
+import EditProfileScreen from '../src/screens/profile/editProfileScreen';
 
 
 //Create a navigator
@@ -17,9 +19,20 @@ const ProfileNavigator = createNativeStackNavigator();
 const ProfileNavigation = () => {
 	
 	return(
-		<ProfileNavigator.Navigator screenOptions={{headerShown: false}}>
-			{/** login Screen */}
-		<ProfileNavigator.Screen name="seeProfile" component={ProfileScreen}/>
+		<ProfileNavigator.Navigator screenOptions={{headerShown: true}}>
+			{/** profile Screen */}
+			<ProfileNavigator.Screen name="seeProfile" component={ProfileScreen}/>
+				{/** edit profile Screen */}
+			<ProfileNavigator.Screen name="editProfile" component={EditProfileScreen} options={{
+          headerTitle: (props) => <Text>AAA</Text>,
+          headerRight: () => (
+            <Button
+              onPress={() => alert('This is a button!')}
+              title="Info"
+              color="#fff"
+            />
+          ),
+        }}/>
 			{/** New Account Screen */}
 			{/**<ProfileNavigator.Screen name="avatar" component={Avatar}/> */}
 		</ProfileNavigator.Navigator>
