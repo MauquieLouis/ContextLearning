@@ -23,6 +23,7 @@ export const UserContextProvider = ({ props, children }) => {
 			setLoading(true);
 			const response = await supabaseClient.from('profiles').select("*").eq('id',user["identities"][0]["id"]);
 			setProfile(response["data"][0]);
+			
 		}catch(error){
 			console.log("ERROR  in 'LoadProfile' function in userContext.js ");
 			console.log(error);
@@ -33,7 +34,7 @@ export const UserContextProvider = ({ props, children }) => {
 
 	//------ USE EFFECT ------- //
 	useEffect(() => {
-		const session = supabaseClient .auth.session();
+		const session = supabaseClient.auth.session();
 		setSession(session);
 		setUser(session?.user ?? null);		
 		
@@ -44,8 +45,24 @@ export const UserContextProvider = ({ props, children }) => {
 		});
 		
 		LoadProfile();
+		if(user){
+			console.log("CREATE PROFILE LISTENER !")
+			const profiles = supabaseClient.from('profiles:id=eq.'+user["identities"][0]["id"]).on('*', payload => {
+				console.log("PROFILE CHANGE GLOBAL IN SUPABASE MY FRIEND")
+				console.log(payload);
+				setProfile(payload["new"]);
+			}).subscribe();
+			console.log(profiles);
+			console.log("END CREATE PROFILE LISTENER !")
+		}
+		
+		
 		return () => {
 			authListener.unsubscribe();
+//			supabaseClient.removeAllSubscriptions();	
+//			if(profileListener){
+//				profileListener.unsubscribe();
+//			}
 		};
 	},[user]);
 	

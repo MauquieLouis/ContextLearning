@@ -23,16 +23,18 @@ const ProfileNavigation = () => {
 			{/** profile Screen */}
 			<ProfileNavigator.Screen name="seeProfile" component={ProfileScreen}/>
 				{/** edit profile Screen */}
-			<ProfileNavigator.Screen name="editProfile" component={EditProfileScreen} options={{
-          headerTitle: (props) => <Text>AAA</Text>,
-          headerRight: () => (
-            <Button
-              onPress={() => alert('This is a button!')}
-              title="Info"
-              color="#fff"
-            />
-          ),
-        }}/>
+			<ProfileNavigator.Screen name="editProfile" component={EditProfileScreen} 
+				options={{
+		          headerTitle: (props) => <Text>Back To Profile</Text>,
+		          headerRight: () => (
+		            <Button
+		              onPress={() => alert('This is a button!')}
+		              title="Info"
+		              color="#ABABAB"
+		            />
+		          ),
+        	}}
+        	/>
 			{/** New Account Screen */}
 			{/**<ProfileNavigator.Screen name="avatar" component={Avatar}/> */}
 		</ProfileNavigator.Navigator>
