@@ -11,11 +11,20 @@ export default StyleSheet.create({
     	padding: 12,
     	flex:1,
 	},
+	contentContainerStyleScrollView:{
+		flexGrow: 1,
+	},
 	rowContainer:{
 		flexDirection:"row",
 	},
 	rowReverseContainer:{
 		flexDirection:"row-reverse",
+	},
+	columContainer:{
+		flexDirection:"column",
+	},
+	columnReverseContainer:{
+		flexDirection:"column-reverse",
 	},
 	greyLine:{
 		borderTopWidth:1,
@@ -48,5 +57,32 @@ export default StyleSheet.create({
 	},
 	mgRight20:{
 		marginRight:20,
+	},
+	padding10:{
+		padding:10,
+	},
+	paddingLeft20:{
+		paddingLeft:20
+	},
+	paddingBottom20:{
+		paddingBottom:20
+	},
+	paddingRight20:{
+		paddingRight:20
+	},
+	paddingTop20:{
+		paddingTop:20
+	},
+	justifyContentCenter:{
+		justifyContent:"center",
+	},
+	alignItemsCenter:{
+		alignItems:"center"
+	},
+	title:{
+		textAlign:"center",
+		fontSize:20,
+		fontWeight:"bold",
+		color:"#565656",
 	}
 });

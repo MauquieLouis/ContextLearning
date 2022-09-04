@@ -6,11 +6,12 @@ import React, { useState, useEffect } from 'react';
 import {Text, View, TextInput, ActivityIndicator, ScrollView, Image, Button, TouchableHighlight} from 'react-native';
 import styles from '../../static/styles/profileStyle/profileStyle';
 import gStyles from '../../static/styles/globalStyle/globalStyle';
+import { useIsFocused } from '@react-navigation/native';
 //-----------------------------
 // Import components
 //-----------------------------
 import Loader from '../../components/Loader';
-import Displaypicture from '../../components/displayPicture';
+import DisplayPictureUrl from '../../components/displayPictureUrl';
 //-----------------------------
 // Import all things from supabase 
 //-----------------------------
@@ -34,9 +35,12 @@ import { useUserContext } from "../../context/userContext";
 const ProfileScreen = (props) => {
 	
 	const {profile, loading} = useUserContext();
-	
+	const [profileData, setProfileData] = useState(profile);
+	const isFocused = useIsFocused();
 	useEffect(() => {
-	},[]);
+		setProfileData(profile);
+		console.log(profile);
+	},[isFocused]);
 	
 	function userSignOut(){
 		try{
@@ -58,7 +62,7 @@ const ProfileScreen = (props) => {
 		return <Loader/>;
 	}
   return (
-	<ScrollView contentContainerStyle={{flexGrow: 1}}>
+	<ScrollView contentContainerStyle={gStyles.contentContainerStyleScrollView}>
     	<View style={gStyles.container}>
     		{profile ? 
     		<>
@@ -66,7 +70,17 @@ const ProfileScreen = (props) => {
     			<View style={gStyles.rowContainer}>
 	    			{/* ---=== picture section ===--- */}
     				<View style={[gStyles.mgLeft10, styles.flexPicture]}>
-			    		<Displaypicture uri={profile["avatar_url"]} width={70} height={70} borderRadius={50}/>
+    					{profile["avatar_url"]? 
+			    		<DisplayPictureUrl 
+			    			uri={profileData["avatar_url"]} 
+			    			key={profileData["avatar_url"]} 
+			    			userIdFolder={profile['id']}
+			    			width={70} 
+			    			height={70} 
+			    			borderRadius={50}/>
+    					: 
+    					<Image source={require('../../static/images/user/defaultAvatar.png')} style={[{width:70,height:70,borderRadius:50}]}/>
+    					}
     				</View>
 	    			{/* ---=== end picture section ===--- */}
 	    			{/* ---=== name, pseudo, edit profile section ===--- */}
