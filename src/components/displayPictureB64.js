@@ -12,7 +12,7 @@ import { supabaseClient } from '../../lib/initSupabase';
 //-----------------------------
 // End Import
 //-----------------------------
-//DisplayPictureB64 Screen
+//DisplayPictureB64 Component
 const DisplayPictureB64 = (props) => {
 	
 	useEffect(() => {

@@ -84,5 +84,12 @@ export default StyleSheet.create({
 		fontSize:20,
 		fontWeight:"bold",
 		color:"#565656",
+	},
+	touchableHighlightBck:{
+		width:40,
+		height:40,
+		borderRadius:25,
+		justifyContent:'center',
+		alignItems:'center',
 	}
 });
