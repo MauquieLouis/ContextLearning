@@ -27,8 +27,8 @@ export default StyleSheet.create({
 		alignSelf:'flex-end',
 	},
 	imageBrand:{
-		width:140,
-		height:140,
+		width:110,
+		height:110,
 	},
 	imageView:{
 		justifyContent:'center',
@@ -47,7 +47,7 @@ export default StyleSheet.create({
 		alignSelf: 'stretch',
 	},
 	textInputStyle:{
-		height:40,
+		height:30,
 		margin:12,
 		borderWidth:1,
 		padding:10,

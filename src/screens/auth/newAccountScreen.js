@@ -3,7 +3,7 @@
 // Import all stranges modules from react / native / elements
 //-----------------------------
 import React, { useState, useEffect } from 'react';
-import {Text, View, TextInput, StyleSheet, ActivityIndicator, ScrollView, Dimensions, Image} from 'react-native';
+import {Text, View, TextInput, StyleSheet, ActivityIndicator, ScrollView, Dimensions, Image, Alert} from 'react-native';
 import {Button, Input} from 'react-native-elements';
 //-----------------------------
 // Import all things from supabase 
@@ -19,42 +19,93 @@ import styles from '../../static/styles/authStyle/style';
 // Import avatar upload
 //-----------------------------
 //-----------------------------
+
+//-----------------------------
+import { useToast } from "react-native-toast-notifications";
+//-----------------------------
 // End Import
 //-----------------------------
-const { height } = Dimensions.get('window');
 
 //Profile Screen
-const ProfileScreen = (props) => {
+const NewAccountScreen = (props) => {
 	
 	const [email, setEmail] = useState('');
 	const [username, setUsername] = useState('');
+	const [name, setName] = useState('');
 	const [password, setPassword] = useState('');
 	const [password2, setPassword2] = useState('');
+	const [loading, setLoading] = useState(false);
+	const toast = useToast();
 	
 	const handleSignIn = async type =>{
 		props.navigation.navigate('login'); 
 	}
 	
-	const handleSignUp = async type => {
+	const handleSignUp = async () => {
+		console.log("SIGN UP IN !!")
 		try{
-			const {error, user} = await supabaseClient.auth.signIn({email,password});
+			if(password != password2){
+				Alert.alert(
+					"Password not matching",
+					"password not matching try again"
+					,[{
+						text:"OK",
+						onPress: () => {},
+						style:{}
+				}]);
+				return;
+			}
+			//Check if username is already in use in profile.
+//			let { data: profiles, error } = await supabase.from 
+			const {error, user} = await supabaseClient.auth.signUp({email:email,password:password},
+				{
+					data:{
+						username:username,
+						name:name
+					}
+				}).then((res) => {
+				console.log("RES !!")
+				console.log(res);
+			});
 			console.log("Error : ",error);
 			console.log("User : ", user);
-			props.navigation.navigate('Profile'); 
 			
 		}catch(error){
 			console.log("Error : ",error);
 			
 		}finally{
+			toast.show("Before navigate successfully", {
+			  type: "normal",
+			  placement: "bottom",
+			  duration: 4000,
+			  offset: 30,
+			  animationType: "slide-in",
+			});
+			props.navigation.navigate('login'); 
+			toast.show("To log in confirm your email, Maybe later it can be better to redirect to another page with some info to tell to confirm the mail sent to the adress lou********@gmail.com", {
+			  type: "normal",
+			  placement: "bottom",
+			  duration: 10000,
+			  offset: 30,
+			  animationType: "slide-in",
+			});
 			console.log("Sign in out ...");
 		}
 	}
+	
+//	async function createProfile(id){
+//		const { data, errorProfile } = await supabaseClient.from('profiles').insert([{id:id,username:username,name:name}]);
+//			if(errorProfile){
+//				console.log("ERROR");
+//				console.log(errorProfile);
+//			}
+//	}
 	
   return (
 	<ScrollView contentContainerStyle={{ flexGrow:1}}>
     	<View style={[styles.container]}>
     		<View style={[styles.top]}>
-	    		<View style={[styles.imageView, styles.mTop20]}>
+	    		<View style={[styles.imageView, styles.mTop10]}>
 					<Image source={require('../../static/images/logo/Logo.png')} style={(styles.imageBrand)}/>
 					<Text style={[styles.boldText, styles.bigText]}>Sign up to meet people.</Text>
 					<View style={[styles.greyLine]}></View> 
@@ -69,11 +120,18 @@ const ProfileScreen = (props) => {
 						autoCapitalize={'none'}
 					/>
 					<Input
-						label="Username"
+						label="@Username"
 						leftIcon={<FontAwesomeIcon icon={faUser} color={'grey'} size={24}/>}
 						onChangeText={text => setUsername(text)}
 						value={username}
 						placeholder="i.e : Jean-Michel Bourg-Palette93"
+					/>
+					<Input
+						label="Name"
+						leftIcon={<FontAwesomeIcon icon={faUser} color={'grey'} size={24}/>}
+						onChangeText={text => setName(text)}
+						value={name}
+						placeholder="i.e : Jean Jean"
 					/>
 					<Input
 						label="Password"
@@ -110,4 +168,4 @@ const ProfileScreen = (props) => {
   );
 }
 // Export Screen -------
-export default ProfileScreen;
+export default NewAccountScreen;
