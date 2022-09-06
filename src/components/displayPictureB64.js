@@ -4,7 +4,7 @@
 //-----------------------------
 import React, { useState, useEffect } from 'react';
 import {Text, View, TextInput, StyleSheet, ActivityIndicator, ScrollView, Dimensions, Image, Button, Animated} from 'react-native';
-import Loader from '../components/Loader';
+
 //-----------------------------
 // Import SupabaseClient
 //-----------------------------
@@ -22,7 +22,7 @@ const DisplayPictureB64 = (props) => {
 	
   return (
 	<View>
-		<Animated.Image source={{uri:props["base64"]}} alt="Avatar" className="avatar image" 
+		<Image source={{uri:props["base64"]}} alt="Avatar" className="avatar image" 
 			style={{
 				width:props["width"],
 				height:props["height"],

@@ -21,28 +21,32 @@ const SearchScreen = (props) => {
 	const [usersToDisplay, setUsersToDisplay] = useState(null); // remplacer le useState(null) par useState(historique recherche)
 	
 	useLayoutEffect(() => {
-		props.navigation.setOptions({
-			headerRight:() => (
-				<Button onPress={() => props.navigation.goBack()} title="back"/>
-			)
-		})
+//		props.navigation.setOptions({
+//			headerRight:() => (
+//				<Button onPress={() => props.navigation.goBack()} title="back"/>
+//			)
+//		})
 	},[props.navigation])
 	
 	async function onChangeSearchUser(text){
-//		setLoading(true);
-		console.log('Hey bitch ! : '+text);
+		console.log("Text : "+text);
 		if(!text){console.log('nullTxt');setUsersToDisplay(null);setLoading(false);return;}
+		if(text == ' '){console.log('spaceTxt');setUsersToDisplay(null);setLoading(false);return;}
 		try{
 			let { data: profiles, error } = await supabaseClient
 				.from('profiles')
-			  	.select('id,username,avatar_url')
-				.ilike('username', "%"+text+"%");
+			  	.select('id,username,name,avatar_url')
+			  	.or('username.ilike.%'+text+'%,name.ilike.%'+text+'%');
+//				.ilike('name', "%"+text+"%")
+//				.ilike('username', "%"+text+"%");
 			console.log(profiles);
 			setUsersToDisplay(profiles);
 		}catch(error){
 			console.log(error);	
 		}finally{
 			setLoading(false);
+			if(!text){console.log('nullTxt');setUsersToDisplay(null);setLoading(false);return;}
+			if(text == ' '){console.log('spaceTxt');setUsersToDisplay(null);setLoading(false);return;}
 		}
 	}
 	
@@ -73,7 +77,7 @@ const SearchScreen = (props) => {
 					<FlatList keyboardShouldPersistTaps='handled'
 						data={usersToDisplay}
 						renderItem={({item}) => (
-							<TouchableHighlight onPress={() => redirectTo(item)} keyboardShouldPersistTaps={'handled'}>
+							<TouchableHighlight onPress={() => redirectTo(item)} keyboardShouldPersistTaps={'handled'} underlayColor={'#DCDCDC'} >
 								<UserSearchDisplay profile={item} navigation={props.navigation}/>
 							</TouchableHighlight>
 							)}>

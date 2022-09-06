@@ -12,6 +12,7 @@ import { useIsFocused } from '@react-navigation/native';
 //-----------------------------
 import Loader from '../../components/Loader';
 import DisplayPictureUrl from '../../components/displayPictureUrl';
+import DisplayProfilePicture from '../../components/displayProfilePicture';
 //-----------------------------
 // Import all things from supabase 
 //-----------------------------
@@ -71,13 +72,16 @@ const ProfileScreen = (props) => {
 	    			{/* ---=== picture section ===--- */}
     				<View style={[gStyles.mgLeft10, styles.flexPicture]}>
     					{profile["avatar_url"]? 
-			    		<DisplayPictureUrl 
-			    			uri={profileData["avatar_url"]} 
-			    			key={profileData["avatar_url"]} 
-			    			userIdFolder={profile['id']}
-			    			width={70} 
+    					<DisplayProfilePicture width={70} 
 			    			height={70} 
 			    			borderRadius={50}/>
+//			    		<DisplayPictureUrl 
+//			    			uri={profileData["avatar_url"]} 
+//			    			key={profileData["avatar_url"]} 
+//			    			userIdFolder={profile['id']}
+//			    			width={70} 
+//			    			height={70} 
+//			    			borderRadius={50}/>
     					: 
     					<Image source={require('../../static/images/user/defaultAvatar.png')} style={[{width:70,height:70,borderRadius:50}]}/>
     					}
