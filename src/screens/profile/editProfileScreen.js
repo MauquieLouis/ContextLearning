@@ -13,6 +13,7 @@ import gStyles from '../../static/styles/globalStyle/globalStyle';
 import Loader from '../../components/Loader';
 import DisplayPictureUrl from '../../components/displayPictureUrl';
 import UploadPicture from '../../components/uploadPicture';
+import DisplayProfilePicture from '../../components/displayProfilePicture';
 //-----------------------------
 // Import all things from supabase 
 //-----------------------------
@@ -25,6 +26,10 @@ import { faUser, faUserCircle } from '@fortawesome/free-solid-svg-icons';
 //-----------------------------
 // Import avatar upload
 //-----------------------------
+//-----------------------------
+// Import Bouncy CheckBox
+//-----------------------------
+import BouncyCheckbox from "react-native-bouncy-checkbox";
 //-----------------------------
 // Import Usercontext
 //-----------------------------
@@ -42,6 +47,9 @@ const EditProfileScreen = (props) => {
 	const [name, setName] = useState(profile["name"]);
 	const [avatarUrl, setAvatarUrl] = useState(profile["avatar_url"]);
 	const [profileDesc, setProfileDesc] = useState(profile["profile_desc"]);
+	const [darkModeCheck, setDarkModeCheck] = useState(profile["dark_mode"]);
+	const [loadingCheckBox, setLoadingCheckBox] = useState(false);
+	const [loadingSaveBtn, setLoadingSaveBtn] = useState(false);
 	
 	useEffect(() => {
 	}, []);
@@ -53,6 +61,29 @@ const EditProfileScreen = (props) => {
 			
 		}finally{
 			
+		}
+	}
+	
+	async function setDarkMode(darkMode){
+		try{
+			setLoadingCheckBox(true);
+			setDarkModeCheck(darkMode);
+			const { data, error } = await supabaseClient.from('profiles').update({dark_mode: darkMode}).eq('id',profile["id"]);
+		}catch(error){
+			console.log("ERROR AIE .", error);
+		}finally{
+			setLoadingCheckBox(false);
+		}
+	}
+	
+	async function saveProfile(){
+		try{
+			setLoadingSaveBtn(true);
+			const { data, error } = await supabaseClient.from('profiles').update({username:username,name:name,profile_desc:profileDesc}).eq('id',profile["id"]);
+		}catch(error){
+			console.log("ERROR AIE .", error);
+		}finally{
+			setLoadingSaveBtn(false);
 		}
 	}
 
@@ -96,17 +127,26 @@ const EditProfileScreen = (props) => {
 		      		multiline={true}
 		      		maxLength={1024}
 		      		/>
-		      	<Button  title={"Save Changes"}/>
+		      	{loadingSaveBtn ? 
+		      		<Loader/>
+		      	:
+			      	<Button  title={"Save Changes"} onPress={() => {saveProfile()}}/>
+ 		      	}
+		      	
 	      		<View style={[gStyles.rowContainer,gStyles.alignItemsCenter, gStyles.mgBottom20, gStyles.mgTop20]}>
 					<Text style={[gStyles.mgRight20]}>Profile picture : </Text>
 	      			{avatarUrl? 
-			    		<DisplayPictureUrl 
-			    			uri={avatarUrl} 
-			    			key={avatarUrl}
-			    			userIdFolder={profile['id']} 
-			    			width={50} 
+	      			<DisplayProfilePicture 
+	      						width={50} 
 			    			height={50} 
 			    			borderRadius={50}/>
+//			    		<DisplayPictureUrl 
+//			    			uri={avatarUrl} 
+//			    			key={avatarUrl}
+//			    			userIdFolder={profile['id']} 
+//			    			width={50} 
+//			    			height={50} 
+//			    			borderRadius={50}/>
     					:
 						<Image source={require('../../static/images/user/defaultAvatar.png')} style={[{width:50,height:50,borderRadius:50}]}/>
     					}
@@ -114,6 +154,21 @@ const EditProfileScreen = (props) => {
 			      		<UploadPicture buttonTitle={"Change picture"} urlSetter={setAvatarUrl} avatarUrl={avatarUrl}/>
 	      			</View>
 				</View>
+				{loadingCheckBox ? 
+					<Loader/>
+				: 
+					<BouncyCheckbox
+					  size={25}
+					  fillColor="#8989FF"
+					  unfillColor="rgba(0,0,0,0)"
+					  text="DARK MODE ?"
+					  iconStyle={{ borderColor: "red" }}
+					  innerIconStyle={{ borderWidth: 2 }}
+					  isChecked={darkModeCheck }
+					  textStyle={{ fontFamily: "JosefinSans-Regular",textDecorationLine: "none", }}
+					  onPress={(isChecked: boolean) => {setDarkMode(isChecked)}}
+					/>
+				}
 			</View>
 		</View>
     	<View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>

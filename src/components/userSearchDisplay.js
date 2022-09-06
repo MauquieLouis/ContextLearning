@@ -11,6 +11,11 @@ import {Button, Input} from 'react-native-elements';
 // Import all things from supabase 
 //-----------------------------
 import { supabaseClient  } from '../../lib/initSupabase';
+//-----------------------------
+
+//-----------------------------
+import Loader from './Loader';
+
 
 //Search Screen
 const UserSearchDisplay = (props) => {
@@ -47,8 +52,18 @@ const UserSearchDisplay = (props) => {
 	}	
 	return(
 		<View style={styles.container}>
-			<Image source={{uri:avatarUrl}} alt="Avatar" className="avatar image" style={styles.image}/>
-			<Text style={styles.info}>{props.profile.username}</Text>		
+			{loading ? <Loader/>: 
+				<>
+				{avatarUrl ? 
+					<Image source={{uri:avatarUrl}} alt="Avatar" className="avatar image" style={styles.image}/>
+				:
+					<Image source={require('../static/images/user/defaultAvatar.png')} style={[{width:50,height:50,borderRadius:50}]}/>
+				 }
+				</>
+			}
+			<Text style={styles.username}>@{props.profile.username} -{' '}
+				<Text style={styles.name}> {props.profile.name}</Text>
+			</Text>		
 		</View>
 		);
 }
@@ -68,11 +83,15 @@ const styles = StyleSheet.create({
  		height: 50,
 		borderRadius:25,
 	},
-	info:{
+	username:{
 		flex: 1,
 		marginLeft: 15,
 	    color: '#424242',
 		fontWeight:'bold',
-		fontSize:22
+		fontSize:16
 	},	
+	name:{
+		fontWeight:'normal',
+		fontSize:14
+	},
 });
