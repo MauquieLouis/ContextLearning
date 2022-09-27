@@ -59,7 +59,7 @@ export const UserContextProvider = ({ props, children }) => {
 		
 		return () => {
 			authListener.unsubscribe();
-//			supabaseClient.removeAllSubscriptions();	
+			supabaseClient.removeAllSubscriptions();	
 //			if(profileListener){
 //				profileListener.unsubscribe();
 //			}

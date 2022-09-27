@@ -6,6 +6,7 @@ import * as React from 'react';
 // Import things for contexts
 //-----------------------------
 import {UserContextProvider, useUserContext } from "./src/context/userContext";
+import {MessagingContextProvider, useMessagingContext } from "./src/context/messagingContext";
 import { MessagingSubscriptionContextProvider, useMessagingSubscriptionContext } from './src/context/messagingsSubscriptionContext';
 import { ToastProvider } from 'react-native-toast-notifications';
 //-----------------------------
@@ -23,7 +24,9 @@ export default function App(){
 		return(
 			<ToastProvider>
 				<UserContextProvider>
-					<MyNavigator />
+					<MessagingContextProvider>
+						<MyNavigator />
+					</MessagingContextProvider>
 				</UserContextProvider>
 			</ToastProvider>
 		);

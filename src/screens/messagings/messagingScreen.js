@@ -11,35 +11,86 @@ import styles from '../../static/styles/messagingStyle/messageStyle';
 import { supabaseClient  } from '../../../lib/initSupabase';
 //Import UserContext
 import {UserContextProvider, useUserContext } from "../../context/userContext";
+import {MessagingContextProvider, useMessagingContext } from "../../context/messagingContext";
 //-----------------------------
 // Import icons and Toast
 //-----------------------------
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faAngleDoubleRight } from '@fortawesome/free-solid-svg-icons';
+
+import Loader from '../../components/Loader';
 
 
 import MessageZone from '../messagings/messageZone';
+
 
 	var lastMessages;
 //Messaging Screen
 const MessagingScreen = (props) => {
 	
 	//Get current session and user.	
-	const {session, user} = useUserContext();
+	const { user } = useUserContext();
+	//Get the messagings to listen
+	const { messagingsToListen } = useMessagingContext();
 	
 	const [message, setMessage] = useState('');
 	const [lastMessages, setLastMessages] = useState(null);
 	const [idMessaging, setIdMessaging] = useState(null);
+	const [messaging, setMessaging] = useState(null);
+	const [loading, setLoading] = useState(false);
+	const [maxId, setMaxId] = useState(null);
 	
-	var messaging;
+	var messagingGet;
 	var isNew;
 	var id_messaging;
 	
+	function getAndSetMaxId(arr, prop){
+		var max;
+		for(var i=0; i<arr.length; i++){
+			if(max == null || arr[i][prop] > max)
+				max = arr[i][prop];
+		}
+		console.log("THE SUPPPPEEEEERRRR MAAAAAAXXXXX IS : "+max);
+		setMaxId(max);
+		return max;
+	}
+	
 	useEffect(() => {
+		console.log("useEffect of messagingScreen.");
 		getOrCreateMessagings();
-	},[]);
+		RefreshMessages();
+	},[messagingsToListen]);
+	
+	//This is a way to get lasts message, by taking the last id and getting all message with and id higher, but not
+	//very perfect, we can miss some message for sure, HAVE TO FIND A BEST WAY TO DO IT.
+	
+	
+	const RefreshMessages = async () => {
+		console.log("New Message Received !");
+		setLoading(true);
+		try{
+			const { data, error } = await supabaseClient.from('message').select().eq('messaging', messaging["id"])
+			.gt('id',maxId);
+			console.log("Data : ");
+			console.log(data);
+			setLastMessages((lastMessages) => [...lastMessages, data]);
+			console.log(lastMessages);
+			getAndSetMaxId(data,"id");
+		}catch(error){
+			console.log("Error in Refresh Messages : ");
+			console.log(error);			
+		}finally{
+			setLoading(false);			
+		}
+		//Format date like this to use in request : ((new Date()).toISOString()).toLocaleString('zh-TW')
+	}
 	
 	const getOrCreateMessagings = async () => {
+		if(messaging != null){
+			console.log("MESSAGING NOT NULL EXIT");
+			return
+		}
+		console.log("MESSAGING NULL : LOOKING FOR A MESSAGING");
 		//Search in messagings table if a messagings between these two user exist.
 		//Create the users json table to search;
 		//Always put the lowest id in first.
@@ -58,14 +109,13 @@ const MessagingScreen = (props) => {
 			/*-*-*-*-*-*-*-*-*-*-*-*-TRY TO REPLACE WITH 'UPSERT'*-*-*-*-*-*-*-*-*-*-*-*-*-*/
 			//Use upsert Function to insert or update if it already exist -> I have made some try, I didn't succeed
 			const { data, error } = await supabaseClient.from('messaging').select().eq('messaging_id',messaging_id);//.eq('users',usersJSON);
-			messaging = data[0];
-			if(messaging["nb_message"]){
+			messagingGet = data[0];
+//			setMessaging(data[0]);
+			if(data.length){
 				isNew = false;
 			}else{
 				isNew = true;
 			}
-			console.log("------Data messagings not new : -------")
-			console.log(data)
 			if(!data.length){
 				//No data : create a new messaging
 				const { data, error } = await supabaseClient.from('messaging').insert([{
@@ -73,63 +123,76 @@ const MessagingScreen = (props) => {
 					users:usersJSON,
 					messaging_id:messaging_id
 				}]);
-				console.log("------Data messagings new : -------")
-				console.log(data)
-				messaging = data[0];
+//				setMessaging(data[0]);
+				messagingGet = data[0];
 				isNew = true;
 			}
 			/*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
 		}catch(error){
-			console.log("error Catch : ");
+			console.log("error Catch in getOrCreateMessaging in messagingScreen.js : ");
 			console.log(error);
 		}finally{
-//			console.log("Finally !");	
-//			console.log(messaging);		
-//			id_messaging = messaging["id"];
-			setIdMessaging(messaging["id"]);
-			if(isNew){
+			setMessaging(messagingGet)
+			console.log(messaging);
+			if(!isNew){
 				getLast30MessagesOfMessaging();
 			}
 		}
 	}
 	
 	const getLast30MessagesOfMessaging = async () => {
+		//All is in the function name.
 		console.log("Gets last messages.");
+		setLoading(true);
 		try{
-			const { data, error } = await supabaseClient.from('message').select().eq('messaging', idMessaging).range(0,30);
+			const { data, error } = await supabaseClient.from('message').select().eq('messaging', messagingGet["id"]).range(0,30);
 //			lastMessages=data;
+			console.log(messagingGet["id"]);
 			setLastMessages(data);
+			getAndSetMaxId(data,"id");
 			console.log('Message data : ');
 //			console.log(data);
-			console.log(lastMessages)
-			console.log(error);
+//			console.log(lastMessages)
+//			console.log(error);
 		}catch(error){
 			console.log(error);
 		}finally{
-			
+			setLoading(false);
 		}
 	}
 	
 	const sendMessage = async () => {
 		try{
+			const { dataMessaging, errorMessaging } = await supabaseClient.from('messaging')
+			.update({nb_message: messaging["nb_message"]+1+""})
+			.eq('messaging_id', messaging["messaging_id"]);
+			console.log("DataMessaging :");
+			console.log(dataMessaging);
+			console.log(errorMessaging);
 			const { data, error } = await supabaseClient.from("message").insert([{
 				text:message,
 				type:'text',
-				messaging:idMessaging,
+				messaging:messaging["id"],
 				send_by:user["identities"][0]["id"]
 				}]);
 				console.log("Data message : " );
 				console.log(data);
 				console.log(error);
 		}catch(error){
+			console.log("ERROR in sendMessage in messagingScreen.js")
 			console.log(error);
+			console.log(errorMessaging)
 		}finally{
 			
 		}
 	}
 	
 	const renderItem = ({ item }) => (
+		loading ? 
+		<Loader/>
+		:
 		<MessageZone item={item}/>
+		
   	);
   	
 //	getOrCreateMessagings();
@@ -143,7 +206,6 @@ const MessagingScreen = (props) => {
 				        extraData={lastMessages}
 				        renderItem={renderItem}
 				      />
-				      <Button title="Refresh" onPress={() => {getLast30MessagesOfMessaging()}}/>
 				</View>
 				{/**Bottom bar to write a message */}
 				<View style={styles.bottom}>

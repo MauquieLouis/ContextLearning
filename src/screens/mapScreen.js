@@ -25,17 +25,19 @@ const MapScreen = ({props}) => {
 //	const {username, country} = useAppContext();		
 	
 	useEffect(() => {
-		requestLocationPermission();
-		Geolocation.getCurrentPosition(
-	        (position) => {
-//	          setLocation(position.coords);
-	        },
-	        (error) => { 
-	          // See error code charts below.
-	          console.log(error.code, error.message);
-	        },
-	        { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
-	    );
+		//.-.-.-.-.-.-.-.-.-.-.-:* UNCOMMENT TO REQUEST FOR POSITION *:-.-.-.-.-.-.-.-.-.-.//
+//		requestLocationPermission();
+//		Geolocation.getCurrentPosition(
+//	        (position) => {
+////	          setLocation(position.coords);
+//	        },
+//	        (error) => { 
+//	          // See error code charts below.
+//	          console.log(error.code, error.message);
+//	        },
+//	        { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+//	    );
+		//.-.-.-.-.-.-.-.-.-.-.-:* ================================= *:-.-.-.-.-.-.-.-.-.-.//
 	},[]);
   
 	return( 
@@ -44,6 +46,7 @@ const MapScreen = ({props}) => {
           		<MapboxGL.MapView style={styles.map} styleJSON={JSON.stringify(defaultStyle)} rotateEnabled={false}>
           			<MapboxGL.UserLocation animated={true} visible={true} showsUserHeadingIndicator={true} androidRenderMode={"normal"}/>
           			<MapboxGL.Camera followUserLocation={true}/>
+          			<MapboxGL.Camera zoomLevel={5} centerCoordinate={[3.087025,45.777222]}/>
             	</MapboxGL.MapView>
         	</View>
       	</View>
@@ -124,6 +127,7 @@ const defaultStyle = {
       tileSize: 256,
       minzoom: 1,
       maxzoom: 19,
+		
     },
   },
   layers: [

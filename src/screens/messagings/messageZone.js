@@ -5,8 +5,7 @@ import {Text, View, StyleSheet} from 'react-native';
 //MessageZone
 const MessageZone = (props) => {
 	
-	console.log('items  : ');
-	console.log(props.item)
+//	console.log('items  : ');
 	return(
 		<View>
 			<Text>item : {props.item['text']}</Text>
