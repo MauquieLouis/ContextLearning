@@ -2,17 +2,25 @@
 // ======== S T Y L E S ============= //
 // ================================== //
 import { StyleSheet } from 'react-native';
-import {Dimensions} from 'react-native';
-const { height } = Dimensions.get('window');
+
+import themeColors from '../globalStyle/themeColor';
 
 export default StyleSheet.create({
 	container: {
     	marginTop: 10,
     	padding: 12,
     	flex:1,
+//backgroundColor:"blue",
+	},
+	containerBckLight:{
+		backgroundColor:themeColors.lightBackground
+	},
+	containerBckDark: {
+		backgroundColor:themeColors.darkBackground
 	},
 	contentContainerStyleScrollView:{
 		flexGrow: 1,
+//		backgroundColor:"blue",
 	},
 	rowContainer:{
 		flexDirection:"row",

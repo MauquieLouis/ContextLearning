@@ -85,7 +85,9 @@ const UploadPicture = (props) => {
   return (
 	<View>
 		<View style={{marginTop:10}}>
-			<Button title={props["buttonTitle"]} onPress={async () => {
+			<Button title={props["buttonTitle"]}
+//				style={[{color:props["color"]}]}
+				onPress={async () => {
 				try{
 					const result = await launchImageLibrary({includeBase64:true, maxWidth:1000, maxHeight:1000});
 					const {base64, ext, name} = returnBase64FileExtAndFileName(result.assets[0]);

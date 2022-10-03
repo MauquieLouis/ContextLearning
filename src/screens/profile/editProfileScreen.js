@@ -41,7 +41,7 @@ import { useUserContext } from "../../context/userContext";
 //Edit Profile Screen
 const EditProfileScreen = (props) => {
 	
-	const {profile, loading} = useUserContext();
+	const {profile, loading, darkTheme} = useUserContext();
 	
 	const [username, setUsername] = useState(profile["username"]);
 	const [name, setName] = useState(profile["name"]);
@@ -50,9 +50,12 @@ const EditProfileScreen = (props) => {
 	const [darkModeCheck, setDarkModeCheck] = useState(profile["dark_mode"]);
 	const [loadingCheckBox, setLoadingCheckBox] = useState(false);
 	const [loadingSaveBtn, setLoadingSaveBtn] = useState(false);
+	const [dark_theme, setDarkTheme] = useState(darkTheme);
 	
 	useEffect(() => {
-	}, []);
+		console.log("USE EFFECT EDIT Profile Screen ! :")
+		console.log(darkTheme);
+	}, [darkTheme]);
 	
 	function userSignOut(){
 		try{
@@ -91,7 +94,7 @@ const EditProfileScreen = (props) => {
 		return <Loader/>;
 	}
   return (
-	<ScrollView contentContainerStyle={gStyles.contentContainerStyleScrollView}>
+	<ScrollView contentContainerStyle={[gStyles.contentContainerStyleScrollView, (darkTheme ? gStyles.containerBckDark :gStyles.containerBckLight)]}>
 		<View style={[gStyles.columContainer]}>
 			<View style={[gStyles.mgBottom20, gStyles.mgTop20]}>
 				<Text style={[gStyles.title]}>Edit your profile</Text>
@@ -107,6 +110,9 @@ const EditProfileScreen = (props) => {
 		      		placeholder="Enter a username"
 		      		autoCapitalize={'none'}
 		      		maxLength={127}
+					style={[
+					(darkTheme? {color:themeColors.darkTextColor}:{color:themeColors.lightTextColor})
+					]}
 		      	/>
 		      	<Input
 					label="Name"
@@ -116,6 +122,9 @@ const EditProfileScreen = (props) => {
 		      		placeholder="Enter your name"
 		      		autoCapitalize={'none'}
 		      		maxLength={127}
+					style={[
+					(darkTheme? {color:themeColors.darkTextColor}:{color:themeColors.lightTextColor})
+					]}
 		      		/>
 	      		<Input
 					label="Description"
@@ -126,6 +135,9 @@ const EditProfileScreen = (props) => {
 		      		autoCapitalize={'none'}
 		      		multiline={true}
 		      		maxLength={1024}
+					style={[
+					(darkTheme? {color:themeColors.darkTextColor}:{color:themeColors.lightTextColor})
+					]}
 		      		/>
 		      	{loadingSaveBtn ? 
 		      		<Loader/>
@@ -134,7 +146,7 @@ const EditProfileScreen = (props) => {
  		      	}
 		      	
 	      		<View style={[gStyles.rowContainer,gStyles.alignItemsCenter, gStyles.mgBottom20, gStyles.mgTop20]}>
-					<Text style={[gStyles.mgRight20]}>Profile picture : </Text>
+					<Text style={[gStyles.mgRight20,(darkTheme? {color:themeColors.darkTextColor}:{color:themeColors.lightTextColor})]}>Profile picture : </Text>
 	      			{avatarUrl? 
 	      			<DisplayProfilePicture 
 	      						width={50} 
@@ -151,7 +163,8 @@ const EditProfileScreen = (props) => {
 						<Image source={require('../../static/images/user/defaultAvatar.png')} style={[{width:50,height:50,borderRadius:50}]}/>
     					}
 	      			<View style={[{position:"absolute", right:0, bottom:8}]}>
-			      		<UploadPicture buttonTitle={"Change picture"} urlSetter={setAvatarUrl} avatarUrl={avatarUrl}/>
+			      		<UploadPicture buttonTitle={"Change picture"} color={darkTheme ? themeColors.darkTextColor:themeColors.lightTextColor} urlSetter={setAvatarUrl} avatarUrl={avatarUrl}
+						/>
 	      			</View>
 				</View>
 				{loadingCheckBox ? 
@@ -165,7 +178,7 @@ const EditProfileScreen = (props) => {
 					  iconStyle={{ borderColor: "red" }}
 					  innerIconStyle={{ borderWidth: 2 }}
 					  isChecked={darkModeCheck }
-					  textStyle={{ fontFamily: "JosefinSans-Regular",textDecorationLine: "none", }}
+					  textStyle={{ fontFamily: "JosefinSans-Regular",textDecorationLine: "none", color: (darkTheme? themeColors.darkTextColor:themeColors.lightTextColor)}}
 					  onPress={(isChecked: boolean) => {setDarkMode(isChecked)}}
 					/>
 				}

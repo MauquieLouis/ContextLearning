@@ -164,7 +164,8 @@ const MessagingScreen = (props) => {
 	const sendMessage = async () => {
 		try{
 			const { dataMessaging, errorMessaging } = await supabaseClient.from('messaging')
-			.update({nb_message: messaging["nb_message"]+1+""})
+			.update({nb_message: messaging["nb_message"]+1+"",
+			 last_message:((new Date()).toISOString()).toLocaleString('zh-TW')})
 			.eq('messaging_id', messaging["messaging_id"]);
 			console.log("DataMessaging :");
 			console.log(dataMessaging);

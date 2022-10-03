@@ -2,7 +2,7 @@
 //-----------------------------
 // Import all react bullshit and navigation
 //-----------------------------
-import * as React from 'react';
+import React, {useEffect, useState} from 'react';
 import {Button, Text, TouchableHighlight, Alert, Image} from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import gStyles from '../src/static/styles/globalStyle/globalStyle';
@@ -22,12 +22,23 @@ import { faPowerOff } from '@fortawesome/free-solid-svg-icons';
 //-----------------------------
 import  DisplayProfilePicture from '../src/components/displayProfilePicture';
 
+import { useUserContext } from "../src/context/userContext";
 
 //Create a navigator
 const MessagingNavigator = createNativeStackNavigator();
 
 // profile Navigation
 const MessagingNavigation = () => {
+	
+	const { darkTheme } = useUserContext();
+	
+	const [dark_theme, setDarkTheme] = useState(darkTheme);
+	
+	useEffect(() => {
+		if(darkTheme != undefined){
+				setDarkTheme(darkTheme);
+			}
+	}, [darkTheme]);
 	
 	return(
 		<MessagingNavigator.Navigator screenOptions={{headerShown: true}}>

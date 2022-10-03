@@ -1,28 +1,80 @@
 import React, { useState, useEffect } from 'react';
-import {Text, View, TextInput, StyleSheet, ScrollView, Pressable} from 'react-native';
+import {Text, View, TextInput, StyleSheet, FlatList, TouchableHighlight} from 'react-native';
 //-----------------------------
 // Import icons and Toast
 //-----------------------------
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
-import { faUser, faGlobe, faEnvelope, faImage, faMagnifyingGlass  } from '@fortawesome/free-solid-svg-icons';
-//import { faMagnifyingGlass  } from '@fortawesome/free-regular-svg-icons';
-//import { solid, regular, brands } from '@fortawesome/fontawesome-svg-core/import.macro' //
+import {  faMagnifyingGlass  } from '@fortawesome/free-solid-svg-icons';
 
-import {Button, Input} from 'react-native-elements';
+import { useUserContext } from "../../context/userContext";
+import { useMessagingContext } from "../../context/messagingContext";
+
+import Loader from '../../components/Loader';
+
+import { supabaseClient } from '../../../lib/initSupabase';
+
+import DisplayPictureUrl from '../../components/displayPictureUrl';
 
 
 //Messagings Screen
 const MessagingsScreen = (props) => {
-	const [textSearch, setTextSearch] = useState('');
-	function onPressFunction(text){
-		console.log('Hey bitch ! : ');
+	
+	const { messagingsToListen } = useMessagingContext();
+	
+	const [loading, setLoading] = useState(false);
+	const [messagings, setMessagings] = useState(null);
+	
+	useEffect(() => {
+		GetAllMessagings();
+	}, []); 
+	
+	
+	const GetAllMessagings = async () => {
+		setLoading(true);
+		try{
+			//Get all messagings that we are listening to ...
+			let { data: messagingsGet, error } = await supabaseClient
+				.from("messaging")
+				.select("*")
+				.in("id",messagingsToListen)
+				.then((messagingsGet) => {
+//					console.log(messagingsGet)
+//					OrderByDate(messagingsGet["body"]);
+				});
+			
+				
+		}catch(error){
+			console.log("Error in messagingsScreen.js in GetAllMessagings() function");
+			console.log(error);
+			
+		}finally{
+			setLoading(false);
+		}
+	};
+
+	function OrderByDate(messagingsTable){
+		console.log(messagingsTable);
+		for(var i = 0; i<messagingsTable.length-1; i++){
+			for(var j= i; j<messagingsTable.length-1; j++){
+				if(messagingsTable[j]["last_message"] < messagingsTable[j+1]["last_message"]){
+					var oldSave = messagingsTable[j];
+					messagingsTable[j+1] = messagingsTable[j];
+					messagingsTable[j] = oldSave;
+				}				
+			}
+		}
+		console.log(messagingsTable);
+	}
+
+	//Redirect to search component... ->
+	function onPressFunction(){
 		props.navigation.navigate('Messagings',{screen :'search'});
 	}
 	
 	return(
-		<ScrollView>
+		<View style={{marginTop:15}}>
 			<View>
-				<Pressable onPress={onPressFunction}>
+				<TouchableHighlight onPress={onPressFunction} underlayColor={'transparent'} style={{height:40}}>
 					<View style={styles.searchView}>
 						<FontAwesomeIcon icon={faMagnifyingGlass} color={'grey'} size={24} style={styles.searchIcon}/>
 						<TextInput 
@@ -33,12 +85,21 @@ const MessagingsScreen = (props) => {
 							selectTextOnFocus={false}
 						/>
 					</View>
-				</Pressable>
-				<View style={styles.underSearchLine}></View>
-				<Text>Messagings Screen</Text>
-				<Text>Display all messaging here</Text>
+				</TouchableHighlight>
+				<View style={styles.underSearchLine,{marginTop:30}}></View>
+				<View>
+				{loading ? 
+					<Loader/>
+				:
+					<FlatList
+//				        data={profiles}
+//				        extraData={profiles}
+//				        renderItem={renderItem}
+				      />
+				}
+				</View>
 			</View>
-		</ScrollView>
+		</View>
 	);
 }
 export default MessagingsScreen;

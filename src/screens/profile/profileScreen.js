@@ -4,9 +4,13 @@
 //-----------------------------
 import React, { useState, useEffect } from 'react';
 import {Text, View, TextInput, ActivityIndicator, ScrollView, Image, Button, TouchableHighlight} from 'react-native';
+import { useIsFocused } from '@react-navigation/native';
+//-----------------------------
+// Import styles
+//-----------------------------
 import styles from '../../static/styles/profileStyle/profileStyle';
 import gStyles from '../../static/styles/globalStyle/globalStyle';
-import { useIsFocused } from '@react-navigation/native';
+import themeColors from '../../static/styles/globalStyle/themeColor';
 //-----------------------------
 // Import components
 //-----------------------------
@@ -35,13 +39,14 @@ import { useUserContext } from "../../context/userContext";
 //Profile Screen
 const ProfileScreen = (props) => {
 	
-	const {profile, loading} = useUserContext();
+	const {profile, loading, darkTheme} = useUserContext();
+	
 	const [profileData, setProfileData] = useState(profile);
+	
 	const isFocused = useIsFocused();
 	useEffect(() => {
 		setProfileData(profile);
-		console.log(profile);
-	},[isFocused]);
+	},[isFocused, profile, darkTheme]);
 	
 	function userSignOut(){
 		try{
@@ -54,8 +59,6 @@ const ProfileScreen = (props) => {
 	}
 	
 	function redirectToEditProfile(){
-		console.log("Redirect To Edit Profile");
-		console.log(props)
 		props.navigation.navigate('editProfile')
 	}
 
@@ -63,8 +66,8 @@ const ProfileScreen = (props) => {
 		return <Loader/>;
 	}
   return (
-	<ScrollView contentContainerStyle={gStyles.contentContainerStyleScrollView}>
-    	<View style={gStyles.container}>
+	<ScrollView contentContainerStyle={[gStyles.contentContainerStyleScrollView, (darkTheme ? gStyles.containerBckDark :gStyles.containerBckLight)]}>
+    	<View style={[gStyles.container]}>
     		{profile ? 
     		<>
     			{/* ---=== TOP SECTION ===--- */}
@@ -91,7 +94,12 @@ const ProfileScreen = (props) => {
     				<View style={[gStyles.mgRight10, styles.flexText]}>
     					<View style={[styles.columnContainer, styles.positionInfos]}>
 							<View style={[ gStyles.rowContainer]}>
-								<Text style={[gStyles.mgLeft20,gStyles.mgTop10,{fontSize:15,flex:1}]}>{profile["name"]}</Text>
+								<Text style={[
+									gStyles.mgLeft20,
+									gStyles.mgTop10,
+									{fontSize:15,flex:1},
+									(darkTheme? {color:themeColors.darkTextColor}:{color:themeColors.lightTextColor})
+									]}>{profile["name"]}</Text>
 								<TouchableHighlight 
 									onPress={() => {redirectToEditProfile()}}
 									underlayColor={'#ABABAB'} 
@@ -113,7 +121,12 @@ const ProfileScreen = (props) => {
     			{/* ---=== BOTTOM SECTION ===--- */}
     			<View style={styles.columnContainer}>
 	    			<View style={styles.columnContainer}>
-	    				<Text>{profile["profile_desc"]}</Text>
+	    				<Text
+						style={[
+						(darkTheme? {color:themeColors.darkTextColor}:{color:themeColors.lightTextColor}),
+						]}
+						>
+						{profile["profile_desc"]}</Text>
 	    			</View>
 	    			<View style={styles.columnReverseContainer}>
 						<Button className="button block" onPress={() => {userSignOut()}} title="Sign Out"/>

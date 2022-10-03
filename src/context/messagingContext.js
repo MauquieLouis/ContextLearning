@@ -57,22 +57,21 @@ export const MessagingContextProvider = ({ props, children }) => {
 			if(messagingsToListen){
 				messagingsToListen.forEach(messaging => {
 					console.log(messaging);
-					console.log("CREATE MESSAGING LISTENER !");
+//					console.log("CREATE MESSAGING LISTENER !");
 					const messagingSub = supabaseClient.from('messaging:id=eq.'+messaging).on('*',payload => {
 						console.log("UPDATE IN MESSAGING :"+messaging);
-						console.log(payload);
+//						console.log(payload);
 						setMessagingsToListen(payload["new"]);
 					}).subscribe();
-//					console.log(messagingSub);
 					setAreListenerSet(true);
-					console.log("END CREATING MESSAGING LISTENER !");
+//					console.log("END CREATING MESSAGING LISTENER !");
 				});
 			}
 			}
 		}
 		
 		return () => {
-			supabaseClient.removeAllSubscriptions();
+//			supabaseClient.removeAllSubscriptions();
 		};
 	},[user, messagingsToListen]);
 	

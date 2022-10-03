@@ -4,10 +4,11 @@ import { createContext, useContext, useEffect, useRef, useState} from "react";
 import { supabaseClient  } from '../../lib/initSupabase';
 
 export const UserContext = createContext({
-  user: null,
-  session: null,
-  profile: null,
-  loading: false,
+	user: null,
+	session: null,
+	profile: null,
+	loading: false,
+	darkTheme: false,
 });
 
 export const UserContextProvider = ({ props, children }) => {
@@ -16,6 +17,7 @@ export const UserContextProvider = ({ props, children }) => {
 	const[user, setUser] = useState(null);
 	const[profile, setProfile] = useState(null);
 	const[loading, setLoading] = useState(false);
+	const[darkTheme, setDarkTheme] = useState(true);
 
 	//-------- ASYNC : LOAD PROFILE ---------//   
 	async function LoadProfile(){
@@ -23,7 +25,7 @@ export const UserContextProvider = ({ props, children }) => {
 			setLoading(true);
 			const response = await supabaseClient.from('profiles').select("*").eq('id',user["identities"][0]["id"]);
 			setProfile(response["data"][0]);
-			
+			setDarkTheme(response["data"][0]["dark_mode"]);
 		}catch(error){
 			console.log("ERROR  in 'LoadProfile' function in userContext.js ");
 			console.log(error);
@@ -46,20 +48,21 @@ export const UserContextProvider = ({ props, children }) => {
 		
 		LoadProfile();
 		if(user){
-			console.log("CREATE PROFILE LISTENER !")
+//			console.log("CREATE PROFILE LISTENER !")
 			const profiles = supabaseClient.from('profiles:id=eq.'+user["identities"][0]["id"]).on('*', payload => {
 				console.log("PROFILE CHANGE GLOBAL IN SUPABASE MY FRIEND")
-				console.log(payload);
+//				console.log(payload);
 				setProfile(payload["new"]);
+				setDarkTheme(payload["new"]["dark_mode"]);
 			}).subscribe();
-			console.log(profiles);
-			console.log("END CREATE PROFILE LISTENER !")
+//			console.log(profiles);
+//			console.log("END CREATE PROFILE LISTENER !")
 		}
 		
 		
 		return () => {
 			authListener.unsubscribe();
-			supabaseClient.removeAllSubscriptions();	
+//			supabaseClient.removeAllSubscriptions();	
 //			if(profileListener){
 //				profileListener.unsubscribe();
 //			}
@@ -71,6 +74,7 @@ export const UserContextProvider = ({ props, children }) => {
 		user,
 		profile,
 		loading,
+		darkTheme
 	};
 	
 	return (<UserContext.Provider value={value} {...props}>
