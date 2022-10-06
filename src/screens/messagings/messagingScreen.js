@@ -20,11 +20,40 @@ import { faAngleDoubleRight } from '@fortawesome/free-solid-svg-icons';
 
 import Loader from '../../components/Loader';
 
+import TextMessage from '../../components/messageComponents/textMessage';
 
-import MessageZone from '../messagings/messageZone';
 
+	/**
+	*************************************************************************
+	***- - - - - = = = = =   F U N C T I O N I N G   = = = = = = - - - - -***
+	*************************************************************************
+	
+	1) Once we FOUND the user, with the search component we get here !
+	
+	2) Then, we CHECK if a messagings exist between connected user and the user searched
+	
+	3) If one exist, we can LOAD THE OLD MESSAGES
+	
+	4) If not, we do nothing... except if the user SEND a message
 
-	var lastMessages;
+	5) If the user send a message, and the messaging not exist, we first CREATE THE MESSAGING
+	
+	6) Then SEND the message.
+
+	*************************************************************************
+	**- - - - - = = = = =  T H I N G S   T O   K N O W  = = = = = - - - - -**
+	*************************************************************************
+	
+	- When creating a messaging users are added in an array field named users.
+	
+	- When a message is send the message count in messaging is updated
+	
+	- 
+	
+	*************************************************************************
+	**- - - - - = = = = = E N D   F U N C T I O N I N G = = = = = - - - - -**
+	*************************************************************************
+	**/
 //Messaging Screen
 const MessagingScreen = (props) => {
 	
@@ -35,168 +64,167 @@ const MessagingScreen = (props) => {
 	
 	const [message, setMessage] = useState('');
 	const [lastMessages, setLastMessages] = useState(null);
-	const [idMessaging, setIdMessaging] = useState(null);
 	const [messaging, setMessaging] = useState(null);
 	const [loading, setLoading] = useState(false);
-	const [maxId, setMaxId] = useState(null);
-	
-	var messagingGet;
-	var isNew;
-	var id_messaging;
-	
-	function getAndSetMaxId(arr, prop){
-		var max;
-		for(var i=0; i<arr.length; i++){
-			if(max == null || arr[i][prop] > max)
-				max = arr[i][prop];
-		}
-		console.log("THE SUPPPPEEEEERRRR MAAAAAAXXXXX IS : "+max);
-		setMaxId(max);
-		return max;
-	}
+	const [messagingHasBeenCreated, setMessagingHasBeenCreated] = useState(false);
 	
 	useEffect(() => {
-		console.log("useEffect of messagingScreen.");
-		getOrCreateMessagings();
-		RefreshMessages();
+		checkForMessaging();
 	},[messagingsToListen]);
 	
-	//This is a way to get lasts message, by taking the last id and getting all message with and id higher, but not
-	//very perfect, we can miss some message for sure, HAVE TO FIND A BEST WAY TO DO IT.
-	
-	
-	const RefreshMessages = async () => {
-		console.log("New Message Received !");
-		setLoading(true);
-		try{
-			const { data, error } = await supabaseClient.from('message').select().eq('messaging', messaging["id"])
-			.gt('id',maxId);
-			console.log("Data : ");
-			console.log(data);
-			setLastMessages((lastMessages) => [...lastMessages, data]);
-			console.log(lastMessages);
-			getAndSetMaxId(data,"id");
-		}catch(error){
-			console.log("Error in Refresh Messages : ");
-			console.log(error);			
-		}finally{
-			setLoading(false);			
-		}
-		//Format date like this to use in request : ((new Date()).toISOString()).toLocaleString('zh-TW')
-	}
-	
-	const getOrCreateMessagings = async () => {
-		if(messaging != null){
-			console.log("MESSAGING NOT NULL EXIT");
-			return
-		}
-		console.log("MESSAGING NULL : LOOKING FOR A MESSAGING");
-		//Search in messagings table if a messagings between these two user exist.
-		//Create the users json table to search;
-		//Always put the lowest id in first.
-		if(user["identities"][0]["id"] < props.route.params.userId){
-			//Put this session user in first
-			var users = {user1:user["identities"][0]["id"],user2:props.route.params.userId};
-			var messaging_id = user["identities"][0]["id"]+""+props.route.params.userId;
+	useEffect(() => {
+		console.log("Effect New message on new conv")
+		if(messagingHasBeenCreated){
+			sendMessage();
+			setMessagingHasBeenCreated(false);
 		}else{
-			//Put the other from the route params
-			var users = {user1:props.route.params.userId,user2:user["identities"][0]["id"]};
-			var messaging_id = props.route.params.userId+""+user["identities"][0]["id"];
+			if(messaging){
+				loadLastMessages();
+			}
 		}
-		var usersJSON = JSON.stringify(users);
-//		console.log(usersJSON);
+	},[messaging]);
+	
+	useEffect(() => {
+		//Use effect to handle new message incoming, from the second user in the conv...
+	},[]);
+	
+	/**-----------------------------------------
+		CHECK IF A MESSAGING EXIST function
+	 ----------------------------------------**/
+	const checkForMessaging = async () => {
 		try{
-			/*-*-*-*-*-*-*-*-*-*-*-*-TRY TO REPLACE WITH 'UPSERT'*-*-*-*-*-*-*-*-*-*-*-*-*-*/
-			//Use upsert Function to insert or update if it already exist -> I have made some try, I didn't succeed
-			const { data, error } = await supabaseClient.from('messaging').select().eq('messaging_id',messaging_id);//.eq('users',usersJSON);
-			messagingGet = data[0];
-//			setMessaging(data[0]);
-			if(data.length){
-				isNew = false;
+			let { data : messagingChecked, error } = await supabaseClient.from('messaging').select("*").contains('users', [user["id"],props.route.params.userId]);
+			if(messagingChecked != null && messagingChecked.length >0 ){
+					console.log(messagingChecked)
+					setMessagingHasBeenCreated(false);
+					setMessaging(messagingChecked[0]);
+//					console.log("TODO : load last messages ... and remove console.log");
+//					Load last messages.
+					//Set them in the state.
 			}else{
-				isNew = true;
+				setMessagingHasBeenCreated(true);
 			}
-			if(!data.length){
-				//No data : create a new messaging
-				const { data, error } = await supabaseClient.from('messaging').insert([{
-					creator_id:user["identities"][0]["id"],
-					users:usersJSON,
-					messaging_id:messaging_id
-				}]);
-//				setMessaging(data[0]);
-				messagingGet = data[0];
-				isNew = true;
-			}
-			/*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
 		}catch(error){
-			console.log("error Catch in getOrCreateMessaging in messagingScreen.js : ");
-			console.log(error);
+			console.log("Error in checkForMessaging in messagingScreen.js");
+			console.log(error)
 		}finally{
-			setMessaging(messagingGet)
-			console.log(messaging);
-			if(!isNew){
-				getLast30MessagesOfMessaging();
-			}
+			
 		}
 	}
-	
-	const getLast30MessagesOfMessaging = async () => {
-		//All is in the function name.
-		console.log("Gets last messages.");
+
+	/**--------------------------------
+		CREATE A MESSAGING function
+	 --------------------------------**/
+	const createMessaging = async () => {
 		setLoading(true);
+		const messagingToCreate = {
+			creator_id: user["id"],
+			users: [user["id"],props.route.params.userId]
+		}
 		try{
-			const { data, error } = await supabaseClient.from('message').select().eq('messaging', messagingGet["id"]).range(0,30);
-//			lastMessages=data;
-			console.log(messagingGet["id"]);
-			setLastMessages(data);
-			getAndSetMaxId(data,"id");
-			console.log('Message data : ');
-//			console.log(data);
-//			console.log(lastMessages)
-//			console.log(error);
-		}catch(error){
+			const { data : messagingCreated, error } = await supabaseClient.from('messaging').insert([
+				messagingToCreate
+				]);
+			setMessaging(messagingCreated[0]);
+			console.log("MESSAGING CREATED AND ERROR");
+			console.log(messagingCreated);
 			console.log(error);
+		}catch(error){
+			
 		}finally{
 			setLoading(false);
+			
 		}
 	}
 	
+	/**--------------------------------
+		   SEND A MESSAGE function
+	 --------------------------------**/
 	const sendMessage = async () => {
+		setLoading(true);
+		const messageToInsert = {
+			messaging: messaging["id"],
+			text: message,
+			type: 'text',
+			sender: user["id"],
+			receiver: props.route.params.userId,
+			message_number: messaging["nb_message"]+1
+		}
+		const messagingToUpdate = {
+			nb_message: messaging["nb_message"]+1,
+			last_message: ((new Date()).toISOString()).toLocaleString('zh-TW')
+		}
+		//At first send the message, then update data in messaging
 		try{
-			const { dataMessaging, errorMessaging } = await supabaseClient.from('messaging')
-			.update({nb_message: messaging["nb_message"]+1+"",
-			 last_message:((new Date()).toISOString()).toLocaleString('zh-TW')})
-			.eq('messaging_id', messaging["messaging_id"]);
-			console.log("DataMessaging :");
-			console.log(dataMessaging);
-			console.log(errorMessaging);
-			const { data, error } = await supabaseClient.from("message").insert([{
-				text:message,
-				type:'text',
-				messaging:messaging["id"],
-				send_by:user["identities"][0]["id"]
-				}]);
-				console.log("Data message : " );
-				console.log(data);
-				console.log(error);
+			const { data: messageSend, errorMessage } = await supabaseClient.from("message").insert([messageToInsert]);
+			const { data: messagingUpdated, errorMessaging } = await supabaseClient.from("messaging")
+				.update(messagingToUpdate)
+				.eq("id",messaging["id"]);
+				if(errorMessage || errorMessaging){
+					console.log("Error in sendMessage");
+					console.log(errorMessage);
+					console.log(errorMessaging);
+				}
+				if(!lastMessages){
+					setLastMessages(messageSend);			
+				}else{
+					setLastMessages(oldLastMessages => [...oldLastMessages, ...messageSend]);
+				}
 		}catch(error){
-			console.log("ERROR in sendMessage in messagingScreen.js")
+			console.log("Error in sendMessage in messagingScreen.js");
+			console.log("error");			
+		}finally{
+			console.log("Last Messages State : ");
+			console.log(lastMessages);
+			setLoading(false);
+			
+		}
+	}
+
+	/**--------------------------------
+		   SEND A MESSAGE function
+	 --------------------------------**/
+	const handleNewMessageSend = async () => {
+		if(!messaging){
+			createMessaging();
+		}else{
+			sendMessage();
+		}
+	}
+	
+	/**--------------------------------
+		   SEND A MESSAGE function
+	 --------------------------------**/
+	const handleNewMessageReceived = async () => {
+		// - - TODO - -
+	}
+	
+	const loadLastMessages = async () => {
+		//Here we load the last 30 messages
+		var messagesTable = [];
+		for(var i = messaging["nb_message"]; i>0; i--){
+			messagesTable.push(i);
+		}
+		try{
+			const { data : lastMessages, error } = await supabaseClient.from("message").select("*")
+			.eq("messaging",messaging["id"])
+			.in("message_number",messagesTable);
+			setLastMessages(lastMessages);
+		}catch(error){
+			console.log("Error in LoadLastMessage in messagingScreen.js");
 			console.log(error);
-			console.log(errorMessaging)
 		}finally{
 			
 		}
 	}
 	
+	
+	
 	const renderItem = ({ item }) => (
-		loading ? 
-		<Loader/>
-		:
-		<MessageZone item={item}/>
-		
+//		console.log(item)
+		<TextMessage message={item}/>
   	);
-  	
-//	getOrCreateMessagings();
+  	 
 	return(
 		<KeyboardAvoidingView style={{flex:1}}>
 			<View style={styles.container}>
@@ -222,7 +250,7 @@ const MessagingScreen = (props) => {
 						{/** Right zone */}
 						<View style={styles.bottomRightView}>
 							<TouchableHighlight
-								onPress={() => {sendMessage()}}>
+								onPress={() => {handleNewMessageSend()}}>
 								<FontAwesomeIcon icon={faAngleDoubleRight} color={'grey'} size={24}/>
 							</TouchableHighlight>
 						</View>

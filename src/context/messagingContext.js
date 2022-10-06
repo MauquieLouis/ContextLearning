@@ -5,19 +5,21 @@ import { supabaseClient  } from '../../lib/initSupabase';
 import { useUserContext } from './userContext';
 
 export const MessagingContext = createContext({
-  messagingsToListen: null,
+  	messagingsToDisplay: null,
+	lastMessage: null,
 });
 
 //CHANGE EVERYTHING FOR MESSAGING CONTEXT
 export const MessagingContextProvider = ({ props, children }) => {
 	
 	const { user } = useUserContext();
-	const [messagingsToListen,setMessagingsToListen] = useState(null);
+	const [messagingsToDisplay,setMessagingsToDisplay] = useState(null);
 	const [areListenerSet, setAreListenerSet] = useState(false);	
+	const [lastMessage, setLastMessage] = useState(null);
 //	const 
 
 	async function LoadMessaging(){
-		if(messagingsToListen != null){
+		if(messagingsToDisplay != null){
 			return;
 		}
 		var messagings = [];
@@ -43,40 +45,26 @@ export const MessagingContextProvider = ({ props, children }) => {
 			console.log("ERROR ...");
 			console.log(error);
 		}finally{
-			setMessagingsToListen(messagings);
+			setMessagingsToDisplay(messagings);
 		}
 	}
 	//------ USE EFFECT ------- //
 	useEffect(() => {
-		
 		if(user){
-			console.log("IF user !")
-			LoadMessaging();
-			if(!areListenerSet){
-				
-			if(messagingsToListen){
-				messagingsToListen.forEach(messaging => {
-					console.log(messaging);
-//					console.log("CREATE MESSAGING LISTENER !");
-					const messagingSub = supabaseClient.from('messaging:id=eq.'+messaging).on('*',payload => {
-						console.log("UPDATE IN MESSAGING :"+messaging);
-//						console.log(payload);
-						setMessagingsToListen(payload["new"]);
-					}).subscribe();
-					setAreListenerSet(true);
-//					console.log("END CREATING MESSAGING LISTENER !");
-				});
-			}
-			}
+			console.log("SET THE MESSAGE LISTENER");
+			const messages = supabaseClient.from('message:receiver=eq.'+user["id"]).on('*', payload => {
+				console.log("NEW MESSAGE received or deleted ...");
+				//Put this conv at the top ...
+				setLastMessage(payload["new"]);
+			}).subscribe();
 		}
-		
 		return () => {
-//			supabaseClient.removeAllSubscriptions();
 		};
-	},[user, messagingsToListen]);
+	},[user]);
 	
 	const value = {
-		messagingsToListen,
+		messagingsToDisplay,
+		lastMessage,
 	};
 	
 	return (<MessagingContext.Provider value={value} {...props}>
