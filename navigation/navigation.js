@@ -17,6 +17,7 @@ import SettingsScreen from '../src/screens/settingsScreen';
 // Import Usercontext
 //-----------------------------
 import { useUserContext } from "../src/context/userContext";
+import { useMessagingContext } from "../src/context/messagingContext";
 //-----------------------------
 // Import navigation stack for tabs
 //-----------------------------
@@ -39,9 +40,21 @@ const MyNavigator = () =>{
 //		const [session, setSession] = useState(null);
 		
 		const {session, user, darkTheme, profile} = useUserContext(); 
+		const { newMessage, numberOfUnreadedMessaging } = useMessagingContext();
+		
+		const [tabBarBadge, setTabBarBadge] = useState(false);
 		
 		useEffect(() => {
-		}, [darkTheme])
+		}, [darkTheme]);
+		
+		useEffect(() => {
+			if(numberOfUnreadedMessaging != 0){
+				setTabBarBadge(numberOfUnreadedMessaging);
+			}else{
+				setTabBarBadge(false);
+			}
+		},[numberOfUnreadedMessaging]);
+		
 	return(
 		<NavigationContainer>
 		{!session ? 
@@ -69,6 +82,7 @@ const MyNavigator = () =>{
 				<bottomTab.Screen name="Messagings" component={MessagingsNavigation}  options={{
 					tabBarIcon : props => <FontAwesomeIcon  icon={faComment} color={colorIconTab(props , darkTheme)} size={iconStyle.size}/>,
 					title:"Messagings",//{/*Change with Translation */}
+					tabBarBadge : tabBarBadge 
 				}} />
 				{/*------------------------------- P R O F I L E / L O G I N   S C R E E N -------------------------------------*/}					
 				<bottomTab.Screen name="Profile" component={ProfileNavigation}  options={{

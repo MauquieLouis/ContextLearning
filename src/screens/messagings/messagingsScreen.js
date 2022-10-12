@@ -19,25 +19,25 @@ import DisplayPictureUrl from '../../components/displayPictureUrl';
 //Messagings Screen
 const MessagingsScreen = (props) => {
 	
-	const { messagingsToDisplay } = useMessagingContext();
+	const { lastMessage } = useMessagingContext();
 	
 	const [loading, setLoading] = useState(false);
 	const [messagings, setMessagings] = useState(null);
 	
 	useEffect(() => {
-		GetAllMessagings();
-	}, [messagingsToDisplay]); 
+//		GetAllMessagings();
+	}, [lastMessage]); 
 	
 	
 	const GetAllMessagings = async () => {
 		setLoading(true);
 		try{
-			console.log(messagingsToDisplay);
+//			console.log(messagingsToDisplay);
 			//Get all messagings that we are listening to ...
-			let { data: messagingsGet, error } = await supabaseClient
-				.from("messaging")
-				.select("*")
-				.in("id",messagingsToDisplay);
+//			let { data: messagingsGet, error } = await supabaseClient
+//				.from("messaging")
+//				.select("*")
+//				.in("id",messagingsToDisplay);
 				
 //				console.
 //				.then((messagingsGet) => {

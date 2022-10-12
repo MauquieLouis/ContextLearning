@@ -9,7 +9,7 @@ export default StyleSheet.create({
 	},
 	top:{
 		flex:9,
-		backgroundColor:'yellow',
+//		backgroundColor:'yellow',
 	},
 	bottom:{
 		flex:1,

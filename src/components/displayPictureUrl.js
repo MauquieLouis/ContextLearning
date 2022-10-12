@@ -20,8 +20,6 @@ const DisplayPictureUrl = (props) => {
 	const [avatarPic, setAvatarPic] = useState(null);
 	
 	useEffect(() => {
-		console.log("PROPS : ");
-		console.log(props);
 		downloadImage(props["uri"]);
 	}, []);
 	
@@ -31,7 +29,6 @@ const DisplayPictureUrl = (props) => {
 			const { data, error } = await supabaseClient.storage.from('avatars').download(props["userIdFolder"]+'/'+path);
 			if(error){
 				console.log("Error download : "+error);
-				console.log('Maybe data : '+data);
 				throw error
 			}
 			var base64Data;
@@ -41,7 +38,6 @@ const DisplayPictureUrl = (props) => {
 				base64Data = fileReaderInstance.result;
 				setAvatarPic(base64Data);
 			}
-			console.log('download Succeed !')
 		} catch (error) {
 			console.log('Error downloading image: ', error.message);
 		}finally{

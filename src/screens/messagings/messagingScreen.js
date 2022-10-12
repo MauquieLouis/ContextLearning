@@ -10,8 +10,8 @@ import styles from '../../static/styles/messagingStyle/messageStyle';
 //-----------------------------
 import { supabaseClient  } from '../../../lib/initSupabase';
 //Import UserContext
-import {UserContextProvider, useUserContext } from "../../context/userContext";
-import {MessagingContextProvider, useMessagingContext } from "../../context/messagingContext";
+import { useUserContext } from "../../context/userContext";
+import { useMessagingContext } from "../../context/messagingContext";
 //-----------------------------
 // Import icons and Toast
 //-----------------------------
@@ -21,6 +21,9 @@ import { faAngleDoubleRight } from '@fortawesome/free-solid-svg-icons';
 import Loader from '../../components/Loader';
 
 import TextMessage from '../../components/messageComponents/textMessage';
+
+import GetProfileFromId from '../../components/profile/getProfileFromId';
+
 
 
 	/**
@@ -58,27 +61,42 @@ import TextMessage from '../../components/messageComponents/textMessage';
 const MessagingScreen = (props) => {
 	
 	//Get current session and user.	
-	const { user } = useUserContext();
+	const { user, profile } = useUserContext();
 	//Get the messagings to listen
-	const { messagingsToListen } = useMessagingContext();
+	const { numberOfUnreadedMessaging, newMessage, lastMessage } = useMessagingContext();
 	
 	const [message, setMessage] = useState('');
 	const [lastMessages, setLastMessages] = useState(null);
 	const [messaging, setMessaging] = useState(null);
 	const [loading, setLoading] = useState(false);
+	const [loadingGlobal, setLoadingGloabal] = useState(false);
 	const [messagingHasBeenCreated, setMessagingHasBeenCreated] = useState(false);
+	const [ignoreMessagingStateChange, setIgnoreMessagingStateChange] = useState(false);
+	const [profileInterloc, setProfileInterloc] = useState(null);
 	
 	useEffect(() => {
 		checkForMessaging();
-	},[messagingsToListen]);
+		GetProfileFromId(props.route.params.userId, setLoadingGloabal, setProfileInterloc);
+	}, []);
 	
 	useEffect(() => {
-		console.log("Effect New message on new conv")
+		console.log("profile interloc change");
+		console.log(profileInterloc);
+	}, [profileInterloc]);
+	
+	useEffect(() => {
+		console.log("OpenMessaging")
+		if(ignoreMessagingStateChange){
+			console.log("Ignore message");
+			return;
+		}
 		if(messagingHasBeenCreated){
+			console.log("It's a new messaging")
 			sendMessage();
 			setMessagingHasBeenCreated(false);
 		}else{
 			if(messaging){
+				console.log("")
 				loadLastMessages();
 			}
 		}
@@ -86,21 +104,29 @@ const MessagingScreen = (props) => {
 	
 	useEffect(() => {
 		//Use effect to handle new message incoming, from the second user in the conv...
-	},[]);
+		console.log("Effect new message incoming")
+		console.log(lastMessages);
+		if(lastMessage != null){
+			handleNewMessageReceived();
+		}
+	},[lastMessage]);
 	
 	/**-----------------------------------------
 		CHECK IF A MESSAGING EXIST function
 	 ----------------------------------------**/
 	const checkForMessaging = async () => {
 		try{
-			let { data : messagingChecked, error } = await supabaseClient.from('messaging').select("*").contains('users', [user["id"],props.route.params.userId]);
+			let messagingChecked = null;
+			if(user["id"] == props.route.params.userId){
+				let { data, error} = await supabaseClient.from('messaging').select("*").containedBy('users',[user["id"],[user["id"]]])			
+				messagingChecked = data;
+			}else{
+				let { data, error } = await supabaseClient.from('messaging').select("*").contains('users', [user["id"],props.route.params.userId]);
+				messagingChecked = data;
+			}
 			if(messagingChecked != null && messagingChecked.length >0 ){
-					console.log(messagingChecked)
 					setMessagingHasBeenCreated(false);
 					setMessaging(messagingChecked[0]);
-//					console.log("TODO : load last messages ... and remove console.log");
-//					Load last messages.
-					//Set them in the state.
 			}else{
 				setMessagingHasBeenCreated(true);
 			}
@@ -126,11 +152,13 @@ const MessagingScreen = (props) => {
 				messagingToCreate
 				]);
 			setMessaging(messagingCreated[0]);
-			console.log("MESSAGING CREATED AND ERROR");
-			console.log(messagingCreated);
-			console.log(error);
+			if(error){
+				console.log("MESSAGING CREATE ERROR");
+				console.log(error);
+			}
 		}catch(error){
-			
+			console.log("Error in createMessaging in createMessaging.js");
+			console.log(error);
 		}finally{
 			setLoading(false);
 			
@@ -141,7 +169,10 @@ const MessagingScreen = (props) => {
 		   SEND A MESSAGE function
 	 --------------------------------**/
 	const sendMessage = async () => {
+		//TODO
+		//Make a new check, handle user send messages at the same time... it will leads to make wrong the message number
 		setLoading(true);
+		console.log("Enter send message")
 		const messageToInsert = {
 			messaging: messaging["id"],
 			text: message,
@@ -154,10 +185,10 @@ const MessagingScreen = (props) => {
 			nb_message: messaging["nb_message"]+1,
 			last_message: ((new Date()).toISOString()).toLocaleString('zh-TW')
 		}
+		console.log("going to the try")
 		//At first send the message, then update data in messaging
 		try{
-			const { data: messageSend, errorMessage } = await supabaseClient.from("message").insert([messageToInsert]);
-			const { data: messagingUpdated, errorMessaging } = await supabaseClient.from("messaging")
+			const { data : messagingUpdated , error :errorMessaging } = await supabaseClient.from("messaging")
 				.update(messagingToUpdate)
 				.eq("id",messaging["id"]);
 				if(errorMessage || errorMessaging){
@@ -165,19 +196,30 @@ const MessagingScreen = (props) => {
 					console.log(errorMessage);
 					console.log(errorMessaging);
 				}
-				if(!lastMessages){
+			console.log("first insert made ...")
+			const { data : messageSend, error : errorMessage } = await supabaseClient.from("message").insert([messageToInsert]);
+			console.log("second one made too ....")
+			console.log(lastMessages)
+				if(!lastMessages || lastMessages == {}){
+					console.log("set the new last message");
+					console.log(messageSend);
 					setLastMessages(messageSend);			
 				}else{
-					setLastMessages(oldLastMessages => [...oldLastMessages, ...messageSend]);
+					console.log("update the new last message");
+					console.log(messageSend);
+					setLastMessages(oldLastMessages => [ ...messageSend, ...oldLastMessages]);
 				}
+				console.log("Messaging maybe error here ...");
+				console.log(messagingUpdated);
+			setMessaging(messagingUpdated[0]); 
 		}catch(error){
 			console.log("Error in sendMessage in messagingScreen.js");
-			console.log("error");			
+			console.log(error);			
 		}finally{
-			console.log("Last Messages State : ");
-			console.log(lastMessages);
+			setIgnoreMessagingStateChange(true);
+			setMessage('');
+//			this.TextInput.current.clear();
 			setLoading(false);
-			
 		}
 	}
 
@@ -185,6 +227,7 @@ const MessagingScreen = (props) => {
 		   SEND A MESSAGE function
 	 --------------------------------**/
 	const handleNewMessageSend = async () => {
+		setLoading(true)
 		if(!messaging){
 			createMessaging();
 		}else{
@@ -195,8 +238,18 @@ const MessagingScreen = (props) => {
 	/**--------------------------------
 		   SEND A MESSAGE function
 	 --------------------------------**/
-	const handleNewMessageReceived = async () => {
+	function handleNewMessageReceived(){
 		// - - TODO - -
+		//PROCESS THE NEW MESSAGE HERE
+		
+		console.log(lastMessages)
+		console.log(lastMessage)
+		if(!lastMessages){
+			//To improve ... this mean, if user has messaging open but no messaging already created, he will not see the first message, it will lead to some bugs...
+//			setLastMessages(lastMessage);			
+		}else{
+			setLastMessages(oldLastMessages => [lastMessage, ...oldLastMessages]);
+		}
 	}
 	
 	const loadLastMessages = async () => {
@@ -208,13 +261,14 @@ const MessagingScreen = (props) => {
 		try{
 			const { data : lastMessages, error } = await supabaseClient.from("message").select("*")
 			.eq("messaging",messaging["id"])
-			.in("message_number",messagesTable);
+			.in("message_number",messagesTable)
+			.order('message_number',{ascending:false});
 			setLastMessages(lastMessages);
 		}catch(error){
 			console.log("Error in LoadLastMessage in messagingScreen.js");
 			console.log(error);
 		}finally{
-			
+			setIgnoreMessagingStateChange(true);
 		}
 	}
 	
@@ -222,15 +276,19 @@ const MessagingScreen = (props) => {
 	
 	const renderItem = ({ item }) => (
 //		console.log(item)
-		<TextMessage message={item}/>
+		<TextMessage message={item} receiver={profileInterloc[0]}/>
   	);
   	 
 	return(
 		<KeyboardAvoidingView style={{flex:1}}>
+		{loadingGlobal ? 
+			<Loader/>
+		: 
 			<View style={styles.container}>
 				{/**Top zone to display messages */}
 				<View style={styles.top}>
 					 <FlatList
+						inverted={-1}
 				        data={lastMessages}
 				        extraData={lastMessages}
 				        renderItem={renderItem}
@@ -245,18 +303,25 @@ const MessagingScreen = (props) => {
 								style={styles.textInputMessageStyle}
 								onChangeText={text => {setMessage(text);}}
 								placeholder="Write a message"
+								value={message}
 							/>
 						</View>
 						{/** Right zone */}
+						{loading ?
+							<Loader/>
+						:
+						
 						<View style={styles.bottomRightView}>
 							<TouchableHighlight
 								onPress={() => {handleNewMessageSend()}}>
 								<FontAwesomeIcon icon={faAngleDoubleRight} color={'grey'} size={24}/>
 							</TouchableHighlight>
 						</View>
+						}
 					</View>
 				</View>
 			</View>
+		}
 		</KeyboardAvoidingView>
 	);
 }

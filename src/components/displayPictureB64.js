@@ -16,8 +16,6 @@ import { supabaseClient } from '../../lib/initSupabase';
 const DisplayPictureB64 = (props) => {
 	
 	useEffect(() => {
-		console.log("PROPS B64: ")
-		console.log(props);
 	}, []);
 	
   return (
