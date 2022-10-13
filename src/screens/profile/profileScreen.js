@@ -78,13 +78,6 @@ const ProfileScreen = (props) => {
     					<DisplayProfilePicture width={70} 
 			    			height={70} 
 			    			borderRadius={50}/>
-//			    		<DisplayPictureUrl 
-//			    			uri={profileData["avatar_url"]} 
-//			    			key={profileData["avatar_url"]} 
-//			    			userIdFolder={profile['id']}
-//			    			width={70} 
-//			    			height={70} 
-//			    			borderRadius={50}/>
     					: 
     					<Image source={require('../../static/images/user/defaultAvatar.png')} style={[{width:70,height:70,borderRadius:50}]}/>
     					}
