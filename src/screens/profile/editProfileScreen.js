@@ -11,9 +11,9 @@ import gStyles from '../../static/styles/globalStyle/globalStyle';
 // Import components
 //-----------------------------
 import Loader from '../../components/Loader';
-import DisplayPictureUrl from '../../components/displayPictureUrl';
-import UploadPicture from '../../components/uploadPicture';
-import DisplayProfilePicture from '../../components/displayProfilePicture';
+import DisplayPictureUrl from '../../components/pictureUtils/displayPictureUrl';
+import UploadPicture from '../../components/pictureUtils/uploadPicture';
+import DisplayProfilePicture from '../../components/pictureUtils/displayProfilePicture';
 //-----------------------------
 // Import all things from supabase 
 //-----------------------------
@@ -149,7 +149,7 @@ const EditProfileScreen = (props) => {
 					<Text style={[gStyles.mgRight20,(darkTheme? {color:themeColors.darkTextColor}:{color:themeColors.lightTextColor})]}>Profile picture : </Text>
 	      			{avatarUrl? 
 	      			<DisplayProfilePicture 
-	      						width={50} 
+	      					width={50} 
 			    			height={50} 
 			    			borderRadius={50}/>
 //			    		<DisplayPictureUrl 

@@ -1,4 +1,4 @@
-// src/components/displayProfilePicture.js
+// src/components/pictureUtils/displayProfilePicture.js
 //-----------------------------
 // Import all stranges modules from react / native / elements
 //-----------------------------
@@ -10,7 +10,7 @@ import DisplayPictureUrl from './displayPictureUrl'
 //-----------------------------
 
 //-----------------------------
-import { useUserContext } from "../context/userContext";
+import { useUserContext } from "../../context/userContext";
 //-----------------------------
 // End Import
 //-----------------------------

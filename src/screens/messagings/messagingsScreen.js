@@ -13,7 +13,7 @@ import Loader from '../../components/Loader';
 
 import { supabaseClient } from '../../../lib/initSupabase';
 
-import DisplayPictureUrl from '../../components/displayPictureUrl';
+import DisplayPictureUrl from '../../components/pictureUtils/displayPictureUrl';
 
 
 //Messagings Screen

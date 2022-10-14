@@ -24,11 +24,12 @@ import { useMessagingContext } from "../src/context/messagingContext";
 import AuthNavigation from './authNavigation';
 import MessagingsNavigation from './messagingsNavigation';
 import ProfileNavigation from './profileNavigation';
+import PicturesNavigation from './picturesNavigation';
 //-----------------------------
 // Import icons
 //-----------------------------
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
-import { faMapMarked, faComment, faUser, faCog, faUserLock } from '@fortawesome/free-solid-svg-icons';
+import { faMapMarked, faComment, faUser, faPlusSquare, faPercent } from '@fortawesome/free-solid-svg-icons';
 //-----------------------------
 // End import
 //-----------------------------
@@ -73,22 +74,33 @@ const MyNavigator = () =>{
 				tabBarHideOnKeyboard:true,
 				headerShown:false,		
 			}}>
-				{/*---------------------------------------- M A P   S C R E E N ------------------------------------------------*/}
+				{/*---------------------------------------- M A P   S C R E E N S ------------------------------------------------*/}
 				<bottomTab.Screen name="Map" component={MapScreen} options={{
 					tabBarIcon : props => <FontAwesomeIcon  icon={faMapMarked} color={colorIconTab(props, darkTheme)} size={iconStyle.size}/>,
 					title:"Map",//{/*Change with Translation */}
 				}}/>
-				{/*------------------------------- P R O F I L E / L O G I N   S C R E E N -------------------------------------*/}					
+				{/*------------------------------- P I C T U R E S    S C R E E N S-------------------------------------*/}					
+				<bottomTab.Screen name="Pictures" component={PicturesNavigation} options={{
+					tabBarIcon : props => <FontAwesomeIcon icon={faPlusSquare} color={colorIconTab(props, darkTheme)} size={iconStyle.size}/>,
+					title:'pictures',
+				}}/>
+				{/*------------------------------- P I C T U R E S    S C R E E N S-------------------------------------*/}					
+				<bottomTab.Screen name="Rating" component={PicturesNavigation} options={{
+					tabBarIcon : props => <FontAwesomeIcon icon={faPercent} color={colorIconTab(props, darkTheme)} size={iconStyle.size}/>,
+					title:'rating',
+				}}/>
+				{/*------------------------------- M E S S A G I N G   S C R E E N S -------------------------------------*/}					
 				<bottomTab.Screen name="Messagings" component={MessagingsNavigation}  options={{
 					tabBarIcon : props => <FontAwesomeIcon  icon={faComment} color={colorIconTab(props , darkTheme)} size={iconStyle.size}/>,
 					title:"Messagings",//{/*Change with Translation */}
 					tabBarBadge : tabBarBadge 
 				}} />
-				{/*------------------------------- P R O F I L E / L O G I N   S C R E E N -------------------------------------*/}					
+				{/*------------------------------- P R O F I L E / L O G I N   S C R E E N S -------------------------------------*/}					
 				<bottomTab.Screen name="Profile" component={ProfileNavigation}  options={{
 					tabBarIcon : props => <FontAwesomeIcon  icon={faUser} color={colorIconTab(props , darkTheme)} size={iconStyle.size}/>,
 					title:"profile",//{/*Change with Translation */}
 				}} />
+				
 			</bottomTab.Navigator>
 		}
 		</NavigationContainer>

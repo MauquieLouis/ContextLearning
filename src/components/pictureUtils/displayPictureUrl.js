@@ -1,15 +1,15 @@
-// src/components/displayPictureUrl.js
+// src/components/pictureUtils/displayPictureUrl.js
 //-----------------------------
 // Import all stranges modules from react / native / elements
 //-----------------------------
 import React, { useState, useEffect } from 'react';
 import {Text, View, TextInput, StyleSheet, ActivityIndicator, ScrollView, Dimensions, Image, Button} from 'react-native';
-import Loader from './Loader';
+import Loader from '../Loader';
 import DisplayPictureB64 from './displayPictureB64'
 //-----------------------------
 // Import SupabaseClient
 //-----------------------------
-import { supabaseClient } from '../../lib/initSupabase';
+import { supabaseClient } from '../../../lib/initSupabase';
 //-----------------------------
 // End Import
 //-----------------------------
@@ -31,6 +31,8 @@ const DisplayPictureUrl = (props) => {
 				console.log("Error download : "+error);
 				throw error
 			}
+			console.log("DisPlay uploaded data  : !");
+			console.log(data);
 			var base64Data;
 			const fileReaderInstance = new FileReader();
 			fileReaderInstance.readAsDataURL(data);
@@ -50,11 +52,11 @@ const DisplayPictureUrl = (props) => {
 			<Loader/>
 		);
 	}
-  return (
-	<View>
-		<DisplayPictureB64 base64={avatarPic} width={props["width"]} height={props["height"]} borderRadius={props["borderRadius"]}/>
-	</View>
-  );
+	return (
+		<View>
+			<DisplayPictureB64 base64={avatarPic} width={props["width"]} height={props["height"]} borderRadius={props["borderRadius"]}/>
+		</View>
+	);
 }
 
 /*

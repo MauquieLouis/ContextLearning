@@ -1,14 +1,14 @@
-// src/components/UploadPicture.js
+// src/components/pictureUtils/UploadPicture.js
 //-----------------------------
 // Import all stranges modules from react / native / elements
 //-----------------------------
 import React, { useState, useEffect } from 'react';
 import { Text, View, TextInput, StyleSheet, ActivityIndicator, ScrollView, Dimensions, Image, Button } from 'react-native';
-import Loader from '../components/Loader';
+import Loader from '../../components/Loader';
 //-----------------------------
 // Import SupabaseClient
 //-----------------------------
-import { supabaseClient } from '../../lib/initSupabase';
+import { supabaseClient } from '../../../lib/initSupabase';
 //-----------------------------
 //	Import to upload pictures
 //-----------------------------
@@ -63,7 +63,7 @@ const UploadPicture = (props) => {
 				const { data } = await supabaseClient.storage.from('avatars').remove([user.id+'/'+oldPic[0]["avatar_url"]]);
 			}
 			if(error2){
-				console.log("ERROR in upLoadPicte, can't load avatar_url:",error);
+				console.log("ERROR in upLoadPicture, can't load avatar_url:",error);
 			}
 			//Change the picture name in profile
 			let {error} = await supabaseClient.from('profiles').upsert({id: user.id, avatar_url:name}, {returning:'minimal'});

@@ -15,8 +15,8 @@ import themeColors from '../../static/styles/globalStyle/themeColor';
 // Import components
 //-----------------------------
 import Loader from '../../components/Loader';
-import DisplayPictureUrl from '../../components/displayPictureUrl';
-import DisplayProfilePicture from '../../components/displayProfilePicture';
+import DisplayPictureUrl from '../../components/pictureUtils/displayPictureUrl';
+import DisplayProfilePicture from '../../components/pictureUtils/displayProfilePicture';
 //-----------------------------
 // Import all things from supabase 
 //-----------------------------

@@ -20,7 +20,7 @@ import { faPowerOff } from '@fortawesome/free-solid-svg-icons';
 //-----------------------------
 // DisplayProfilePicture Component
 //-----------------------------
-import  DisplayProfilePicture from '../src/components/displayProfilePicture';
+import  DisplayProfilePicture from '../src/components/pictureUtils/displayProfilePicture';
 
 import { useUserContext } from "../src/context/userContext";
 
