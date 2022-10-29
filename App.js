@@ -9,6 +9,7 @@ import {UserContextProvider, useUserContext } from "./src/context/userContext";
 import {MessagingContextProvider, useMessagingContext } from "./src/context/messagingContext";
 import { MessagingSubscriptionContextProvider, useMessagingSubscriptionContext } from './src/context/messagingsSubscriptionContext';
 import { ToastProvider } from 'react-native-toast-notifications';
+import { NativeBaseProvider } from "native-base";
 //-----------------------------
 // Import Navigator beach
 //-----------------------------
@@ -22,6 +23,7 @@ export default function App(){
 //		const {messagingContext} = useMessagingSubscriptionContext();
 	
 		return(
+			<NativeBaseProvider>
 			<ToastProvider>
 				<UserContextProvider>
 					<MessagingContextProvider>
@@ -29,6 +31,7 @@ export default function App(){
 					</MessagingContextProvider>
 				</UserContextProvider>
 			</ToastProvider>
+			</NativeBaseProvider>
 		);
 	
 }

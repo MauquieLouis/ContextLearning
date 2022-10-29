@@ -82,7 +82,7 @@ const PictureUpload = (props) => {
 		}
 	}
 	
-	function ConfirmDeletingPicture(){
+	function NavigateToGallery(){
 		props["propsP"].navigation.dispatch(StackActions.popToTop());
 	}
 	
@@ -104,7 +104,7 @@ const PictureUpload = (props) => {
           							onPress: () => {},
           							},{
 									text:"Yes",
-									onPress: () => {ConfirmDeletingPicture()},
+									onPress: () => {NavigateToGallery()},
 									}]
 									)
 						}}
@@ -115,7 +115,7 @@ const PictureUpload = (props) => {
 				<View style={styles.elemInHorizontalView}>
 					<TouchableHighlight
 						onPress={() => {
-							uploadPicture();
+							uploadPicture().then(() => {NavigateToGallery()});
 						}}
 					>
 						<FontAwesomeIcon icon={faCheckCircle} size={46} color={"#25ADAD"}/>

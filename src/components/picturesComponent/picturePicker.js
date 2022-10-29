@@ -85,7 +85,6 @@ const PicturePicker = (props) => {
 					const result = await launchImageLibrary({includeBase64:true, maxWidth:1000, maxHeight:1000});
 					const { base64, ext, name } = returnBase64FileExtAndFileName(result.assets[0]);
 					setPicture({ base64, ext, name });
-					//uploadAvatar(base64, ext, name);
 					//Redirect to picture editor with the picture in props
 					props["props"].navigation.navigate('EditPicture',{ base64, ext, name })
 				}catch(error){
